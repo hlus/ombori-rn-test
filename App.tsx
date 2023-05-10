@@ -80,7 +80,7 @@ export const App: React.FC = () => {
         keyExtractor={userKeyExtractor}
         renderItem={renderUserCard}
         onEndReached={onEndreached}
-        onEndReachedThreshold={0.4}
+        onEndReachedThreshold={0.1}
         refreshControl={
           <RefreshControl refreshing={usersLoading} onRefresh={onRefresh} />
         }
