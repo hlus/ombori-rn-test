@@ -9,11 +9,14 @@ import {
 } from 'react-native';
 
 import {User} from './api/User.dto';
-import {UserCard} from './components/UserCard';
+import {UserCard} from './components/UserCard.component';
 import {fetchUsers} from './api/fetch-users';
+import {ScreenLoader} from './components/ScreenLoader.component';
 
 export const App: React.FC = () => {
-  const [loading, setLoading] = React.useState(false);
+  const [screenLoading, setScreenLoading] = React.useState(true);
+
+  const [usersLoading, setUsersLoading] = React.useState(false);
   const [users, setUsers] = React.useState([] as User[]);
   const [totalUsers, setTotalUsers] = React.useState(0);
   const currentPage = React.useRef(1);
@@ -29,12 +32,12 @@ export const App: React.FC = () => {
   };
 
   const getUsers = async (page: number) => {
-    if (loading) {
+    if (usersLoading) {
       return;
     }
 
     try {
-      setLoading(true);
+      setUsersLoading(true);
 
       const fetchedUsers = await fetchUsers(page);
 
@@ -48,7 +51,7 @@ export const App: React.FC = () => {
     } catch (error) {
       // TODO: handle error
     } finally {
-      setLoading(false);
+      setUsersLoading(false);
     }
   };
 
@@ -57,7 +60,18 @@ export const App: React.FC = () => {
 
   React.useEffect(() => {
     getUsers(1);
+    setScreenLoading(true);
+
+    const sub = setTimeout(() => {
+      setScreenLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(sub);
   }, []);
+
+  if (screenLoading) {
+    return <ScreenLoader />;
+  }
 
   return (
     <View style={styles.screen}>
@@ -68,7 +82,7 @@ export const App: React.FC = () => {
         onEndReached={onEndreached}
         onEndReachedThreshold={0.4}
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+          <RefreshControl refreshing={usersLoading} onRefresh={onRefresh} />
         }
         ListFooterComponent={renderFooter}
       />
